@@ -1,0 +1,24 @@
+name: build / test
+
+on:
+  push:
+    branches: ["dev, master"]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --verbose
+
+      - name: Setup postgres
+        uses: ikalnytskyi/action-setup-postgres@v4
+
+      - name: Run tests
+        run: cargo test --verbose
