@@ -1,0 +1,9 @@
+/target
+/.idea
+docker-compose.yml
+/postgres.env
+/*.env
+/.vscode
+/rustc-ice-*
+/*.pem
+/Cargo.lock
