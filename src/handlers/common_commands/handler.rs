@@ -5,11 +5,11 @@ use teloxide::{
     types::Update,
 };
 
-use crate::{commands::state::MenuCommonCommand, routes::main_menu_open};
+use crate::{handlers::state::MenuCommonCommand, routes::command_open_main_menu};
 
-use super::CommonCommands;
+use super::CommonCommandsHandler;
 
-impl<'a: 'static> CommonCommands<'a>
+impl<'a: 'static> CommonCommandsHandler<'a>
     for Handler<
         'a,
         DependencyMap,
@@ -23,7 +23,8 @@ impl<'a: 'static> CommonCommands<'a>
                 dptree::entry()
                     .filter_command::<MenuCommonCommand>()
                     .branch(
-                        dptree::case![MenuCommonCommand::BackToMainMenu].endpoint(main_menu_open),
+                        dptree::case![MenuCommonCommand::BackToMainMenu]
+                            .endpoint(command_open_main_menu::command),
                     ),
             ),
         )

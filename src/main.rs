@@ -1,10 +1,10 @@
-use commands::CommandConfigure;
-use routes::attend_invite_query;
-use teloxide::dispatching::{Dispatcher, UpdateFilterExt};
+use handlers::HandlerConfigure;
+
+use teloxide::dispatching::Dispatcher;
 use teloxide::prelude::*;
 
-mod commands;
-pub mod routes;
+mod handlers;
+mod routes;
 
 #[tokio::main]
 async fn main() {
@@ -14,14 +14,9 @@ async fn main() {
 
     let bot = Bot::from_env();
 
-    Dispatcher::builder(
-        bot.clone(),
-        dptree::entry()
-            .branch(Update::filter_callback_query().endpoint(attend_invite_query))
-            .setup_commands(),
-    )
-    .enable_ctrlc_handler()
-    .build()
-    .dispatch()
-    .await;
+    Dispatcher::builder(bot.clone(), dptree::entry().setup_handlers())
+        .enable_ctrlc_handler()
+        .build()
+        .dispatch()
+        .await;
 }

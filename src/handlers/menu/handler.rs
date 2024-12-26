@@ -6,13 +6,13 @@ use teloxide::{
 };
 
 use crate::{
-    commands::state::MenuCommandState,
-    routes::{help, invite, start},
+    handlers::state::MenuCommandState,
+    routes::{command_help, command_invite, command_start},
 };
 
-use super::MenuCommands;
+use super::MenuCommandsHandler;
 
-impl<'a: 'static> MenuCommands<'a>
+impl<'a: 'static> MenuCommandsHandler<'a>
     for Handler<
         'a,
         DependencyMap,
@@ -25,9 +25,11 @@ impl<'a: 'static> MenuCommands<'a>
             Update::filter_message().branch(
                 dptree::entry()
                     .filter_command::<MenuCommandState>()
-                    .branch(dptree::case![MenuCommandState::Start].endpoint(start))
-                    .branch(dptree::case![MenuCommandState::Help].endpoint(help))
-                    .branch(dptree::case![MenuCommandState::Invite].endpoint(invite)),
+                    .branch(dptree::case![MenuCommandState::Start].endpoint(command_start::command))
+                    .branch(dptree::case![MenuCommandState::Help].endpoint(command_help::command))
+                    .branch(
+                        dptree::case![MenuCommandState::Invite].endpoint(command_invite::command),
+                    ),
             ),
         )
     }
