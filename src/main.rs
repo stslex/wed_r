@@ -1,5 +1,4 @@
-use handlers::HandlerConfigure;
-
+use handlers::handler_tree;
 use teloxide::dispatching::Dispatcher;
 use teloxide::prelude::*;
 
@@ -14,7 +13,7 @@ async fn main() {
 
     let bot = Bot::from_env();
 
-    Dispatcher::builder(bot.clone(), dptree::entry().setup_handlers())
+    Dispatcher::builder(bot.clone(), handler_tree())
         .enable_ctrlc_handler()
         .build()
         .dispatch()
