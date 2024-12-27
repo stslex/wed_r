@@ -1,3 +1,4 @@
+use log::error;
 use teloxide::{
     payloads::SendMessageSetters,
     prelude::Requester,
@@ -6,7 +7,11 @@ use teloxide::{
     Bot,
 };
 
-use crate::{config::BotState, handlers::state::MenuCommandState};
+use crate::{
+    config::BotState,
+    handlers::state::MenuCommandState,
+    repository::{model::UserRequestDataModel, UserRepository},
+};
 
 pub async fn command(
     bot: Bot,
@@ -25,7 +30,21 @@ pub async fn command(
 
     let keyboard = KeyboardMarkup::new(all_commands).resize_keyboard().clone();
 
-    bot.send_message(msg.chat.id, "Welcome! Choose an option:")
+    let message = match bot_state
+        .create_or_get_user(UserRequestDataModel {
+            username: msg.chat.username().unwrap_or(""),
+            name: msg.chat.first_name().unwrap_or(""),
+        })
+        .await
+    {
+        Ok(user) => format!("Welcome, {}! Choose an option:", user.name),
+        Err(e) => {
+            error!("Failed to create or get user: {}", e);
+            "Welcome! Choose an option:".to_string()
+        }
+    };
+
+    bot.send_message(msg.chat.id, message)
         .reply_markup(keyboard)
         .await?;
 

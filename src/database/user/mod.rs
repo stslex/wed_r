@@ -1,9 +1,11 @@
-use model::{UserDbError, UserEntity};
-use uuid::Uuid;
+use model::{UserCreateEntity, UserEntity};
+
+use super::ErrorResponseDb;
 
 mod database;
 pub mod model;
 
 pub trait UserDatabase {
-    async fn get_user(&self, uuid: Uuid) -> Result<UserEntity, UserDbError>;
+    async fn get_user<'a>(self, username: &'a str) -> Result<UserEntity, ErrorResponseDb>;
+    async fn create_user(self, user: UserCreateEntity) -> Result<UserEntity, ErrorResponseDb>;
 }
