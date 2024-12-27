@@ -10,21 +10,23 @@ mod test {
 
     #[tokio::test]
     async fn test_start_route() {
-        let name = "First Name";
+        let name = "test first name";
         let user = User {
             id: UserId(12345),
             is_bot: false,
             first_name: name.to_owned(),
             last_name: Some("Last".to_owned()),
-            username: Some("username".to_owned()),
+            username: Some("test username".to_owned()),
             language_code: None,
             is_premium: false,
             added_to_attachment_menu: false,
         };
         let message = MockMessageText::new().from(user).text("/start");
 
+        let bot_state = BotState::new_test();
         let bot = MockBot::new(message, handler_tree());
-        bot.dependencies(dptree::deps![BotState::new_test()]);
+
+        bot.dependencies(dptree::deps![bot_state]);
 
         // Sends the message as if it was from a user
         bot.dispatch().await;

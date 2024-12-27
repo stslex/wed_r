@@ -32,16 +32,20 @@ impl UserRepository for BotState {
                 };
                 pool.create_user(user).await
             }
-            Err(e) => Err(e),
+            Err(e) => {
+                error!("Failed to get user: {}", e);
+                Err(e)
+            }
         }
         .map(|user| UserResponseDataModel {
             uuid: user.uuid,
             username: user.username,
             name: user.name,
         })
-        .map_err(|err| {
-            error!("Failed to create or get user: {}", err);
-            ErrorResponseData::InternalServerError
+        .map_err(|err| match err {
+            ErrorResponseDb::InternalServerError => ErrorResponseData::InternalServerError,
+            ErrorResponseDb::NotFound => ErrorResponseData::UserNotFound,
+            ErrorResponseDb::Conflict => ErrorResponseData::UserAlreadyExists,
         })
     }
 }

@@ -30,23 +30,42 @@ pub async fn command(
 
     let keyboard = KeyboardMarkup::new(all_commands).resize_keyboard().clone();
 
-    let message = match bot_state
-        .create_or_get_user(UserRequestDataModel {
-            username: msg.chat.username().unwrap_or(""),
-            name: msg.chat.first_name().unwrap_or(""),
-        })
-        .await
-    {
-        Ok(user) => format!("Welcome, {}! Choose an option:", user.name),
-        Err(e) => {
-            error!("Failed to create or get user: {}", e);
-            "Welcome! Choose an option:".to_string()
-        }
-    };
+    match msg.from {
+        Some(user) => {
+            let username = user.username.unwrap_or("".to_owned());
+            let name = user.first_name;
+            if name.is_empty() || username.is_empty() {
+                error!("Name or username is empty");
+                bot.send_message(msg.chat.id, "Name or username is empty")
+                    .await?;
+                return Ok(());
+            }
+            let message = match bot_state
+                .create_or_get_user(UserRequestDataModel {
+                    username: &username,
+                    name: &name,
+                })
+                .await
+            {
+                Ok(user) => format!("Welcome, {}! Choose an option:", user.name),
+                Err(e) => {
+                    error!("Failed to create or get user: {}", e);
+                    "Welcome! Choose an option:".to_string()
+                }
+            };
 
-    bot.send_message(msg.chat.id, message)
-        .reply_markup(keyboard)
-        .await?;
+            bot.send_message(msg.chat.id, message)
+                .reply_markup(keyboard)
+                .await?;
+        }
+
+        None => {
+            error!("Message from is None");
+            bot.send_message(msg.chat.id, "Message from is None")
+                .await?;
+            return Ok(());
+        }
+    }
 
     Ok(())
 }
