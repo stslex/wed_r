@@ -1,3 +1,4 @@
+use log::error;
 use teloxide::{
     payloads::SendMessageSetters,
     prelude::Requester,
@@ -6,11 +7,16 @@ use teloxide::{
     Bot,
 };
 
-use crate::handlers::state::MenuCommandState;
+use crate::{
+    config::BotState,
+    handlers::state::MenuCommandState,
+    repository::{model::UserRequestDataModel, UserRepository},
+};
 
 pub async fn command(
     bot: Bot,
     msg: Message,
+    bot_state: BotState,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     log::info!("start command");
 
@@ -24,9 +30,42 @@ pub async fn command(
 
     let keyboard = KeyboardMarkup::new(all_commands).resize_keyboard().clone();
 
-    bot.send_message(msg.chat.id, "Welcome! Choose an option:")
-        .reply_markup(keyboard)
-        .await?;
+    match msg.from {
+        Some(user) => {
+            let username = user.username.unwrap_or("".to_owned());
+            let name = user.first_name;
+            if name.is_empty() || username.is_empty() {
+                error!("Name or username is empty");
+                bot.send_message(msg.chat.id, "Name or username is empty")
+                    .await?;
+                return Ok(());
+            }
+            let message = match bot_state
+                .create_or_get_user(UserRequestDataModel {
+                    username: &username,
+                    name: &name,
+                })
+                .await
+            {
+                Ok(user) => format!("Welcome, {}! Choose an option:", user.name),
+                Err(e) => {
+                    error!("Failed to create or get user: {}", e);
+                    "Welcome! Choose an option:".to_string()
+                }
+            };
+
+            bot.send_message(msg.chat.id, message)
+                .reply_markup(keyboard)
+                .await?;
+        }
+
+        None => {
+            error!("Message from is None");
+            bot.send_message(msg.chat.id, "Message from is None")
+                .await?;
+            return Ok(());
+        }
+    }
 
     Ok(())
 }

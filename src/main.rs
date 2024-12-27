@@ -1,9 +1,14 @@
+use config::BotState;
 use handlers::handler_tree;
 use teloxide::dispatching::Dispatcher;
 use teloxide::prelude::*;
 
+mod config;
+mod database;
 mod handlers;
+mod repository;
 mod routes;
+mod schema;
 
 #[tokio::main]
 async fn main() {
@@ -14,6 +19,7 @@ async fn main() {
     let bot = Bot::from_env();
 
     Dispatcher::builder(bot.clone(), handler_tree())
+        .dependencies(dptree::deps![BotState::new()])
         .enable_ctrlc_handler()
         .build()
         .dispatch()
