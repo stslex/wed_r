@@ -6,11 +6,12 @@ use teloxide::{
     Bot,
 };
 
-use crate::handlers::state::MenuCommandState;
+use crate::{config::BotState, handlers::state::MenuCommandState};
 
 pub async fn command(
     bot: Bot,
     msg: Message,
+    bot_state: BotState,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     log::info!("start command");
 
