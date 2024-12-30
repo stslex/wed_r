@@ -9,6 +9,7 @@ mod handlers;
 mod repository;
 mod routes;
 mod schema;
+mod utils;
 
 #[tokio::main]
 async fn main() {

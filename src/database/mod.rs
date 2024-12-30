@@ -3,6 +3,7 @@ use std::fmt::Display;
 mod model;
 pub mod user;
 
+#[derive(Debug, PartialEq)]
 pub enum ErrorResponseDb {
     InternalServerError,
     NotFound,
