@@ -7,6 +7,7 @@ pub struct UserResponseDataModel {
     pub name: String,
 }
 
+#[derive(Clone, Copy)]
 pub struct UserRequestDataModel<'a> {
     pub username: &'a str,
     pub name: &'a str,

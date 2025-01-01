@@ -3,13 +3,13 @@ use log::error;
 
 use crate::{config::DbCon, database::ErrorResponseDb, schema::users};
 
-use super::{model::UserEntity, UserDatabase};
+use super::{
+    model::{UserCreateEntity, UserEntity, UserUpdateEntity},
+    UserDatabase,
+};
 
 impl UserDatabase for &mut DbCon {
-    async fn get_user<'a>(
-        self,
-        username: &'a str,
-    ) -> Result<super::model::UserEntity, ErrorResponseDb> {
+    async fn get_user<'a>(self, username: &'a str) -> Result<UserEntity, ErrorResponseDb> {
         users::table
             .filter(users::username.eq(username))
             .first::<UserEntity>(self)
@@ -22,13 +22,20 @@ impl UserDatabase for &mut DbCon {
             })
     }
 
-    async fn create_user(
-        self,
-        user: super::model::UserCreateEntity,
-    ) -> Result<super::model::UserEntity, ErrorResponseDb> {
-        if self.get_user(&user.username).await.is_ok() {
-            return Err(ErrorResponseDb::Conflict);
-        }
+    async fn update_user(self, user: UserUpdateEntity) -> Result<UserEntity, ErrorResponseDb> {
+        diesel::update(users::table)
+            .set(&user)
+            .get_result::<UserEntity>(self)
+            .map_err(|err| {
+                error!("Failed to update user: {}", err);
+                match err {
+                    diesel::result::Error::NotFound => ErrorResponseDb::NotFound,
+                    _ => ErrorResponseDb::InternalServerError,
+                }
+            })
+    }
+
+    async fn create_user(self, user: UserCreateEntity) -> Result<UserEntity, ErrorResponseDb> {
         diesel::insert_into(users::table)
             .values(user)
             .get_result::<UserEntity>(self)
