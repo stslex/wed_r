@@ -3,7 +3,10 @@ use log::error;
 use crate::{
     config::{database::DataPool, BotState},
     database::{
-        user::{model::UserCreateEntity, UserDatabase},
+        user::{
+            model::{UserCreateEntity, UserUpdateEntity},
+            UserDatabase,
+        },
         ErrorResponseDb,
     },
     routes::model::ErrorResponseData,
@@ -24,14 +27,22 @@ impl UserRepository for BotState {
             return Err(ErrorResponseData::InternalServerError);
         }
         match pool.get_user(&user.username).await {
-            Ok(user) => Ok(user),
-            Err(ErrorResponseDb::NotFound) => {
-                let user = UserCreateEntity {
+            Ok(user) => {
+                pool.update_user(UserUpdateEntity {
+                    uuid: user.uuid,
                     username: user.username.to_owned(),
                     name: user.name.to_owned(),
-                };
-                pool.create_user(user).await
+                })
+                .await
             }
+            Err(ErrorResponseDb::NotFound) => {
+                pool.create_user(UserCreateEntity {
+                    username: user.username.to_owned(),
+                    name: user.name.to_owned(),
+                })
+                .await
+            }
+
             Err(e) => {
                 error!("Failed to get user: {}", e);
                 Err(e)
