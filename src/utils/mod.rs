@@ -10,6 +10,7 @@ pub trait ResultUtil<T, E>
 where
     T: Clone,
 {
+    #[allow(dead_code)]
     async fn to_result<'a, F>(&'a self, mapper: F) -> Result<T, E>
     where
         F: FnOnce() -> E + 'a;

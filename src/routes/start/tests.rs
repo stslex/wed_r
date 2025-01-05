@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod test {
+mod tests {
     use teloxide::{
         dptree,
         types::{User, UserId},
@@ -10,13 +10,15 @@ mod test {
 
     #[tokio::test]
     async fn test_start_route_success() {
+        std::env::set_var("ADMIN_USERNAME", "test_username");
+
         let name = "test first name";
         let user = User {
             id: UserId(12345),
             is_bot: false,
             first_name: name.to_owned(),
             last_name: Some("Last".to_owned()),
-            username: Some("test username".to_owned()),
+            username: Some("test_username".to_owned()),
             language_code: None,
             is_premium: false,
             added_to_attachment_menu: false,
@@ -45,6 +47,8 @@ mod test {
 
     #[tokio::test]
     async fn test_start_route_empty_username() {
+        std::env::set_var("ADMIN_USERNAME", "test_username");
+
         let name = "test first name";
         let username = "";
         let user = User {
@@ -78,6 +82,8 @@ mod test {
 
     #[tokio::test]
     async fn test_start_route_empty_name() {
+        std::env::set_var("ADMIN_USERNAME", "test_username");
+
         let name = "";
         let username = "test_username";
         let user = User {

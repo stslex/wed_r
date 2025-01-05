@@ -1,14 +1,16 @@
-use model::{UserRequestDataModel, UserResponseDataModel};
+use model::{StartRequestModel, StartResponseModel};
 
 use crate::routes::model::ErrorResponseData;
 
+pub mod admin;
 pub mod model;
 mod respository;
 mod tests;
+mod user;
 
-pub trait UserRepository {
-    async fn create_or_get_user<'a>(
+pub trait StartRepository {
+    async fn start<'a>(
         &self,
-        user: UserRequestDataModel<'a>,
-    ) -> Result<UserResponseDataModel, ErrorResponseData>;
+        request: &StartRequestModel<'a>,
+    ) -> Result<StartResponseModel, ErrorResponseData>;
 }
