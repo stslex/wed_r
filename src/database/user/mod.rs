@@ -7,7 +7,11 @@ pub mod model;
 mod tests;
 
 pub trait UserDatabase {
-    async fn get_user<'a>(self, username: &'a str) -> Result<UserEntity, ErrorResponseDb>;
+    async fn get_user_by_username<'a>(
+        self,
+        username: &'a str,
+    ) -> Result<UserEntity, ErrorResponseDb>;
+    async fn get_user<'a>(self, uuid: &'a str) -> Result<UserEntity, ErrorResponseDb>;
     async fn update_user(self, user: UserUpdateEntity) -> Result<UserEntity, ErrorResponseDb>;
     async fn create_user(self, user: UserCreateEntity) -> Result<UserEntity, ErrorResponseDb>;
 }

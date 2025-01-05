@@ -26,3 +26,23 @@ pub enum MenuCommonCommand {
     #[command(aliases = ["назад", "back_to_main_menu"], description = "вернуться в предыдущее меню.")]
     BackToMainMenu,
 }
+
+#[derive(BotCommands, Clone)]
+#[command(
+    rename_rule = "lowercase",
+    description = "These commands are supported:"
+)]
+pub enum MenuAdminCommandState {
+    #[command(description = "start the bot.")]
+    Start,
+    #[command(description = "primary user menu")]
+    UserMenu,
+    #[command(description = "created users")]
+    CreatedUsers,
+    #[command(description = "started users")]
+    StartedUsers,
+    #[command(description = "create user")]
+    CreateUser,
+    #[command(description = "delete user")]
+    DeleteUser,
+}

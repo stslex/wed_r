@@ -17,7 +17,7 @@ mod tests {
     #[tokio::test]
     async fn get_user_error() {
         let mut pool = create_test_db_pool().get().unwrap();
-        let user_result = pool.get_user("test_username").await;
+        let user_result = pool.get_user_by_username("test_username").await;
 
         assert_eq!(user_result.err().unwrap(), ErrorResponseDb::NotFound);
     }
@@ -56,7 +56,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn get_user() {
+    async fn get_user_by_username() {
         let entity_create = UserCreateEntity {
             username: "test_username".to_owned(),
             name: "test_name".to_owned(),
@@ -67,7 +67,27 @@ mod tests {
         let user_result = pool.create_user(entity_create.clone()).await;
         assert!(user_result.is_ok());
 
-        let user_result = pool.get_user(&entity_create.username).await;
+        let user_result = pool.get_user_by_username(&entity_create.username).await;
+        let user = user_result.unwrap();
+
+        assert_eq!(user.username, entity_create.username);
+        assert_eq!(user.name, entity_create.name);
+    }
+
+    #[tokio::test]
+    async fn get_user_by_uuid() {
+        let entity_create = UserCreateEntity {
+            username: "test_username".to_owned(),
+            name: "test_name".to_owned(),
+        };
+
+        let mut pool = create_test_db_pool().get().unwrap();
+
+        let user_result = pool.create_user(entity_create.clone()).await;
+        assert!(user_result.is_ok());
+
+        let uuid = user_result.unwrap().uuid.to_string();
+        let user_result = pool.get_user(&uuid).await;
         let user = user_result.unwrap();
 
         assert_eq!(user.username, entity_create.username);

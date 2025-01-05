@@ -11,8 +11,8 @@ use teloxide::{
 
 use crate::{
     config::BotState,
-    handlers::state::MenuCommandState,
-    repository::{model::UserRequestDataModel, UserRepository},
+    handlers::state::{MenuAdminCommandState, MenuCommandState},
+    repository::{model::StartRequestModel, StartRepository},
     utils::KeyboardButtonUtil,
 };
 
@@ -31,12 +31,29 @@ pub async fn command_start(
             return Ok(());
         }
     };
-    process_start_user(bot, msg, user, bot_state).await
+    let msg_binding = msg.clone();
+    let payload = get_payload(&msg_binding).await;
+    let msg_binding = msg.clone();
+    process_start_user(bot, &msg_binding, payload, user, bot_state).await
 }
 
-async fn process_start_user(
+async fn get_payload<'a>(msg: &'a Message) -> &'a str {
+    match msg.text() {
+        Some(text) => {
+            let payload = text.split_whitespace().collect::<Vec<&'a str>>();
+            if payload.len() < 2 {
+                return "";
+            }
+            return payload[1];
+        }
+        None => "",
+    }
+}
+
+async fn process_start_user<'a>(
     bot: Bot,
-    msg: Message,
+    msg: &'a Message,
+    payload: &'a str,
     user: User,
     bot_state: BotState,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -50,23 +67,23 @@ async fn process_start_user(
         return Ok(());
     }
 
-    let request_model = UserRequestDataModel {
+    let request_model = StartRequestModel {
         username: &username,
         name: &name,
+        uuid: payload,
     };
 
-    let message = match bot_state.create_or_get_user(request_model).await {
-        Ok(user) => format!("Welcome, {}! Choose an option:", user.name),
-        Err(e) => {
-            error!("Failed to create or get user: {}", e);
-            "Welcome! Choose an option:".to_string()
-        }
-    };
+    let result = bot_state.start(&request_model).await;
 
-    let all_commands = MenuCommandState::bot_commands().create_keyboard_buttons();
+    let all_commands = match result.is_admin {
+        true => MenuAdminCommandState::bot_commands(),
+        false => MenuCommandState::bot_commands(),
+    }
+    .create_keyboard_buttons();
+
     let keyboard = KeyboardMarkup::new(all_commands).resize_keyboard().clone();
 
-    bot.send_message(msg.chat.id, message)
+    bot.send_message(msg.chat.id, result.messege)
         .reply_markup(keyboard)
         .await?;
     Ok(())

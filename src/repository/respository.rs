@@ -1,62 +1,51 @@
-use log::error;
-
-use crate::{
-    config::{database::DataPool, BotState},
-    database::{
-        user::{
-            model::{UserCreateEntity, UserUpdateEntity},
-            UserDatabase,
-        },
-        ErrorResponseDb,
-    },
-    routes::model::ErrorResponseData,
-};
+use crate::config::BotState;
 
 use super::{
-    model::{UserRequestDataModel, UserResponseDataModel},
-    UserRepository,
+    admin::{is_admin, AdminRepository},
+    model::{StartRequestModel, StartResponseModel},
+    user::{model::UserRequestDataModel, UserRepository},
+    StartRepository,
 };
 
-impl UserRepository for BotState {
-    async fn create_or_get_user<'a>(
-        &self,
-        user: UserRequestDataModel<'a>,
-    ) -> Result<UserResponseDataModel, ErrorResponseData> {
-        let mut pool = self.clone().safe_get()?;
-        if user.username.is_empty() {
-            return Err(ErrorResponseData::InternalServerError);
-        }
-        match pool.get_user(&user.username).await {
-            Ok(user) => {
-                pool.update_user(UserUpdateEntity {
-                    uuid: user.uuid,
-                    username: user.username.to_owned(),
-                    name: user.name.to_owned(),
-                })
-                .await
-            }
-            Err(ErrorResponseDb::NotFound) => {
-                pool.create_user(UserCreateEntity {
-                    username: user.username.to_owned(),
-                    name: user.name.to_owned(),
-                })
-                .await
-            }
+impl StartRepository for BotState {
+    async fn start<'a>(&self, request: &StartRequestModel<'a>) -> StartResponseModel {
+        let is_user_admin = is_admin(request.username);
+        let name = match is_user_admin {
+            true => match self.start_admin(&request.into()).await {
+                Ok(admin) => admin.name,
+                Err(e) => {
+                    log::error!("Cannot get the admin: {}", e);
+                    return StartResponseModel {
+                        messege: "initiate admin user failed, please write to get extra help"
+                            .to_owned(),
+                        is_admin: false,
+                    };
+                }
+            },
+            false => match self.get_user(&request.uuid).await {
+                Ok(user) => {
+                    self.start_user(&UserRequestDataModel {
+                        uuid: user.uuid,
+                        username: &request.username,
+                        name: &user.name,
+                    })
+                    .await
+                    .unwrap();
+                    user.name
+                }
+                Err(e) => {
+                    log::error!("Cannot get the user: {}", e);
+                    return StartResponseModel {
+                        messege: "initiate user failed, please write to get extra help".to_owned(),
+                        is_admin: false,
+                    };
+                }
+            },
+        };
 
-            Err(e) => {
-                error!("Failed to get user: {}", e);
-                Err(e)
-            }
+        StartResponseModel {
+            messege: format!("Welcome, {}! Choose an option:", name),
+            is_admin: is_user_admin,
         }
-        .map(|user| UserResponseDataModel {
-            uuid: user.uuid,
-            username: user.username,
-            name: user.name,
-        })
-        .map_err(|err| match err {
-            ErrorResponseDb::InternalServerError => ErrorResponseData::InternalServerError,
-            ErrorResponseDb::NotFound => ErrorResponseData::UserNotFound,
-            ErrorResponseDb::Conflict => ErrorResponseData::UserAlreadyExists,
-        })
     }
 }
