@@ -1,4 +1,4 @@
-use crate::config::BotState;
+use crate::{config::BotState, routes::model::ErrorResponseData};
 
 use super::{
     admin::{is_admin, AdminRepository},
@@ -8,44 +8,36 @@ use super::{
 };
 
 impl StartRepository for BotState {
-    async fn start<'a>(&self, request: &StartRequestModel<'a>) -> StartResponseModel {
+    async fn start<'a>(
+        &self,
+        request: &StartRequestModel<'a>,
+    ) -> Result<StartResponseModel, ErrorResponseData> {
         let is_user_admin = is_admin(request.username);
-        let name = match is_user_admin {
-            true => match self.start_admin(&request.into()).await {
-                Ok(admin) => admin.name,
-                Err(e) => {
-                    log::error!("Cannot get the admin: {}", e);
-                    return StartResponseModel {
-                        messege: "initiate admin user failed, please write to get extra help"
-                            .to_owned(),
-                        is_admin: false,
-                    };
-                }
-            },
+        match is_user_admin {
+            true => self
+                .start_admin(&request.into())
+                .await
+                .map(|admin| StartResponseModel {
+                    messege: format!("Welcome, {}! Choose an option:", admin.name),
+                    is_admin: is_user_admin,
+                }),
             false => match self.get_user(&request.uuid).await {
-                Ok(user) => {
-                    self.start_user(&UserRequestDataModel {
+                Ok(user) => self
+                    .start_user(&UserRequestDataModel {
                         uuid: user.uuid,
                         username: &request.username,
                         name: &user.name,
                     })
                     .await
-                    .unwrap();
-                    user.name
-                }
+                    .map(|user| StartResponseModel {
+                        messege: format!("Welcome, {}! Choose an option:", user.name),
+                        is_admin: is_user_admin,
+                    }),
                 Err(e) => {
                     log::error!("Cannot get the user: {}", e);
-                    return StartResponseModel {
-                        messege: "initiate user failed, please write to get extra help".to_owned(),
-                        is_admin: false,
-                    };
+                    Err(e)
                 }
             },
-        };
-
-        StartResponseModel {
-            messege: format!("Welcome, {}! Choose an option:", name),
-            is_admin: is_user_admin,
         }
     }
 }

@@ -1,5 +1,7 @@
 use uuid::Uuid;
 
+use crate::database::user::model::UserEntity;
+
 pub struct AdminRequestModel<'a> {
     pub username: &'a str,
     pub name: &'a str,
@@ -11,14 +13,8 @@ pub struct CreateUserRequestModel<'a> {
     pub name: &'a str,
 }
 
-pub struct CreateUserResponseModel {
-    pub uuid: Uuid,
-    pub username: String,
-    pub name: String,
-}
-
 #[allow(dead_code)]
-pub struct AdminResponseModel {
+pub struct UserResponseModel {
     pub uuid: Uuid,
     pub username: String,
     pub name: String,
@@ -33,9 +29,9 @@ impl<'a> Into<CreateUserRequestModel<'a>> for &AdminRequestModel<'a> {
     }
 }
 
-impl Into<AdminResponseModel> for CreateUserResponseModel {
-    fn into(self) -> AdminResponseModel {
-        AdminResponseModel {
+impl Into<UserResponseModel> for UserEntity {
+    fn into(self) -> UserResponseModel {
+        UserResponseModel {
             uuid: self.uuid,
             username: self.username,
             name: self.name,

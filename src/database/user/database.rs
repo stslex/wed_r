@@ -12,6 +12,12 @@ use super::{
 };
 
 impl UserDatabase for &mut DbCon {
+    async fn get_all_users<'a>(self) -> Result<Vec<UserEntity>, ErrorResponseDb> {
+        users::table.load::<UserEntity>(self).map_err(|err| {
+            error!("Failed to get all users: {}", err);
+            ErrorResponseDb::InternalServerError
+        })
+    }
     async fn get_user_by_username<'a>(
         self,
         username: &'a str,

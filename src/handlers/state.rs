@@ -30,7 +30,7 @@ pub enum MenuCommonCommand {
 #[derive(BotCommands, Clone)]
 #[command(
     rename_rule = "lowercase",
-    description = "These commands are supported:"
+    description = "These commands are supported for admin:"
 )]
 pub enum MenuAdminCommandState {
     #[command(description = "start the bot.")]
@@ -46,3 +46,7 @@ pub enum MenuAdminCommandState {
     #[command(description = "delete user")]
     DeleteUser,
 }
+
+#[derive(BotCommands, Clone)]
+#[command(rename_rule = "lowercase", description = "empty commands menu:")]
+pub enum MenuEmptyCommandState {}

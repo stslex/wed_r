@@ -1,3 +1,4 @@
+pub mod admin;
 pub mod callback_invite_query;
 pub mod command_help;
 pub mod command_invite;

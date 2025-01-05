@@ -10,6 +10,7 @@ pub enum ErrorResponseData {
     InternalServerError,
     BlockingError,
     UuidInvalid,
+    NoPermission,
 }
 
 impl fmt::Display for ErrorResponseData {
@@ -20,6 +21,7 @@ impl fmt::Display for ErrorResponseData {
             ErrorResponseData::InternalServerError => "Internal server error",
             ErrorResponseData::BlockingError => "Blocking error",
             ErrorResponseData::UuidInvalid => "Invalid UUID",
+            ErrorResponseData::NoPermission => "No permission",
         };
         write!(f, "{}", message)
     }

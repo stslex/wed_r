@@ -1,6 +1,4 @@
-use model::{
-    AdminRequestModel, AdminResponseModel, CreateUserRequestModel, CreateUserResponseModel,
-};
+use model::{AdminRequestModel, CreateUserRequestModel, UserResponseModel};
 
 use crate::routes::model::ErrorResponseData;
 
@@ -11,14 +9,19 @@ mod repository;
 mod tests;
 
 pub trait AdminRepository {
+    #[allow(dead_code)]
     async fn create_user<'a>(
         &self,
         request: &CreateUserRequestModel<'a>,
-    ) -> Result<CreateUserResponseModel, ErrorResponseData>;
+    ) -> Result<UserResponseModel, ErrorResponseData>;
+    async fn get_all_users<'a>(
+        &self,
+        username: &'a str,
+    ) -> Result<Vec<UserResponseModel>, ErrorResponseData>;
     async fn start_admin<'a>(
         &self,
         request: &AdminRequestModel<'a>,
-    ) -> Result<AdminResponseModel, ErrorResponseData>;
+    ) -> Result<UserResponseModel, ErrorResponseData>;
 }
 
 impl<'a> Into<AdminRequestModel<'a>> for &StartRequestModel<'a> {

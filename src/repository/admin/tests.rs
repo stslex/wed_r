@@ -27,8 +27,8 @@ mod tests {
     async fn start_admin_user() {
         let state = BotState::new_test();
         let admin_create_model = AdminRequestModel {
-            username: "test_username",
-            name: "test_name",
+            username: "admin_username",
+            name: "admin_test_name",
         };
 
         let admin_created = state.start_admin(&admin_create_model).await.unwrap();

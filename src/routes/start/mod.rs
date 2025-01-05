@@ -11,7 +11,7 @@ use teloxide::{
 
 use crate::{
     config::BotState,
-    handlers::state::{MenuAdminCommandState, MenuCommandState},
+    handlers::state::{MenuAdminCommandState, MenuCommandState, MenuEmptyCommandState},
     repository::{model::StartRequestModel, StartRepository},
     utils::KeyboardButtonUtil,
 };
@@ -73,7 +73,19 @@ async fn process_start_user<'a>(
         uuid: payload,
     };
 
-    let result = bot_state.start(&request_model).await;
+    let result = match bot_state.start(&request_model).await {
+        Ok(result) => result,
+        Err(e) => {
+            error!("Cannot start the user: {}", e);
+            let buttons = MenuEmptyCommandState::bot_commands().create_keyboard_buttons();
+            let keyboard = KeyboardMarkup::new(buttons).resize_keyboard().clone();
+
+            bot.send_message(msg.chat.id, "Cannot start the user")
+                .reply_markup(keyboard)
+                .await?;
+            return Ok(());
+        }
+    };
 
     let all_commands = match result.is_admin {
         true => MenuAdminCommandState::bot_commands(),

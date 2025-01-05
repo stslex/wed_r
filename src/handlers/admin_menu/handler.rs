@@ -7,7 +7,7 @@ use teloxide::{
 
 use crate::{
     handlers::state::MenuAdminCommandState,
-    routes::{command_open_main_menu, start::command_start},
+    routes::{admin::command_get_all_created_users, command_open_main_menu, start::command_start},
 };
 
 use super::AdminMenuCommandsHandler;
@@ -29,6 +29,10 @@ impl<'a: 'static> AdminMenuCommandsHandler<'a>
                     .branch(
                         dptree::case![MenuAdminCommandState::UserMenu]
                             .endpoint(command_open_main_menu::command),
+                    )
+                    .branch(
+                        dptree::case![MenuAdminCommandState::CreatedUsers]
+                            .endpoint(command_get_all_created_users),
                     ),
             ),
         )
