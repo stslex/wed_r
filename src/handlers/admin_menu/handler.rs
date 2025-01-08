@@ -7,7 +7,10 @@ use teloxide::{
 
 use crate::{
     handlers::state::MenuAdminCommandState,
-    routes::{admin::command_get_all_created_users, command_open_main_menu, start::command_start},
+    routes::{
+        admin::get_all_created_users::command_get_all_created_users, command_open_main_menu,
+        start::command_start,
+    },
 };
 
 use super::AdminMenuCommandsHandler;

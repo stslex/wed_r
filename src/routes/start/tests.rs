@@ -9,7 +9,7 @@ mod tests {
     use crate::{config::BotState, handlers::handler_tree};
 
     #[tokio::test]
-    async fn test_start_route_success() {
+    async fn start_route_success() {
         std::env::set_var("ADMIN_USERNAME", "test_username");
 
         let name = "test first name";
@@ -46,7 +46,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_start_route_empty_username() {
+    async fn start_route_empty_username() {
         std::env::set_var("ADMIN_USERNAME", "test_username");
 
         let name = "test first name";
@@ -81,7 +81,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_start_route_empty_name() {
+    async fn start_route_empty_name() {
         std::env::set_var("ADMIN_USERNAME", "test_username");
 
         let name = "";
@@ -116,7 +116,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_start_route_from_null_user() {
+    async fn start_route_from_null_user() {
         let message = MockMessageText::new().text("/start");
 
         let bot_state = BotState::new_test();
