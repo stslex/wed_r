@@ -5,6 +5,12 @@ use teloxide::{
     Bot,
 };
 
+enum CallbackQueryData {
+    AttendInviteYes,
+    AttendInviteNo,
+    InsertFirstName,
+}
+
 pub async fn callback(
     bot: Bot,
     q: CallbackQuery,
