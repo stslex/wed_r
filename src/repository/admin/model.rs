@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use uuid::Uuid;
 
 use crate::database::user::model::UserEntity;
@@ -13,6 +15,7 @@ pub struct CreateUserRequestModel<'a> {
     pub name: &'a str,
 }
 
+#[derive(Debug)]
 #[allow(dead_code)]
 pub struct UserResponseModel {
     pub uuid: Uuid,
@@ -36,5 +39,17 @@ impl Into<UserResponseModel> for UserEntity {
             username: self.username,
             name: self.name,
         }
+    }
+}
+
+impl Display for UserResponseModel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "User: {} - {} - {}",
+            self.username,
+            self.name,
+            self.uuid.to_string()
+        )
     }
 }
