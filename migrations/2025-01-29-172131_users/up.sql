@@ -9,6 +9,6 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE UNIQUE INDEX IF NOT EXISTS users_uuid_uindex ON users (uuid);
 
-CREATE UNIQUE INDEX IF NOT EXISTS users_username_uindex ON users (username);
+CREATE INDEX IF NOT EXISTS users_username_index ON users (username);
 
-CREATE UNIQUE INDEX IF NOT EXISTS users_name_uindex ON users (name);
+CREATE INDEX IF NOT EXISTS users_name_index ON users (name);

@@ -83,7 +83,7 @@ async fn wait_for_accept(
                     .await?;
             } else {
                 let user_create = CreateUserRequestModel {
-                    username: &firstname,
+                    username: "",
                     name: &firstname,
                 };
                 match bot_state.create_user(&user_create).await {
