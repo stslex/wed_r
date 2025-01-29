@@ -10,6 +10,9 @@ teloxide_tests = { version = "0.2" }
 # database
 diesel = { version = "2", features = ["postgres", "r2d2", "uuid"] }
 diesel_migrations = { version = "2.1.0", features = ["postgres"] }
+# qr code
+qrcodegen = "1.8.0"
+image = "0.24"
 # common
 tokio = { version = "1.8", features = ["rt-multi-thread", "macros"] }
 dotenv = "0.15"
