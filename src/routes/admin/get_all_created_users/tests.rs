@@ -1,13 +1,14 @@
 #[cfg(test)]
 mod tests {
     use teloxide::{
+        dispatching::dialogue::InMemStorage,
         dptree,
         types::{User, UserId},
     };
     use teloxide_tests::{MockBot, MockMessageText};
 
     use crate::{
-        config::BotState,
+        config::{BotState, CreateUserState},
         handlers::handler_tree,
         repository::admin::{model::CreateUserRequestModel, AdminRepository},
     };
@@ -30,6 +31,7 @@ mod tests {
         let message = MockMessageText::new().from(user).text("/createdusers");
 
         let bot_state = BotState::new_test();
+        let bot_user_state = InMemStorage::<CreateUserState>::new();
 
         let created_user_model_1 = CreateUserRequestModel {
             username: "test_username_1",
@@ -45,7 +47,7 @@ mod tests {
 
         let bot = MockBot::new(message, handler_tree());
 
-        bot.dependencies(dptree::deps![bot_state]);
+        bot.dependencies(dptree::deps![bot_state, bot_user_state]);
 
         // Sends the message as if it was from a user
         bot.dispatch().await;

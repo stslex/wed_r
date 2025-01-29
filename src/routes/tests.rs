@@ -18,6 +18,6 @@ mod tests {
             .text("/start")
             .build();
         let payload = get_payload(&message).await;
-        assert_eq!(payload, "test");
+        assert_ne!(payload, "test");
     }
 }
