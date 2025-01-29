@@ -2,6 +2,7 @@ use diesel::{
     r2d2::{self, ConnectionManager, PooledConnection},
     PgConnection,
 };
+use serde::{Deserialize, Serialize};
 pub mod database;
 
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
@@ -25,4 +26,14 @@ impl BotState {
             pool: database::pool::create_test_db_pool(),
         }
     }
+}
+
+#[derive(Clone, Default, Serialize, Deserialize)]
+pub enum CreateUserState {
+    #[default]
+    NotStarted,
+    WaitingForUsername,
+    WaitingForAccept {
+        firstname: String,
+    },
 }

@@ -3,6 +3,7 @@ mod tests {
     use crate::{
         config::BotState,
         repository::admin::{
+            is_admin,
             model::{AdminRequestModel, CreateUserRequestModel},
             AdminRepository,
         },
@@ -36,5 +37,18 @@ mod tests {
         assert_eq!(admin_created.name, admin_create_model.name);
         assert_eq!(admin_created.username, admin_create_model.username);
         assert!(!admin_created.uuid.to_string().is_empty());
+    }
+
+    #[tokio::test]
+    async fn is_admin_success() {
+        let expected_username = "admin_username";
+        std::env::set_var("ADMIN_USERNAME", expected_username);
+        assert!(is_admin(expected_username));
+    }
+
+    #[tokio::test]
+    async fn is_admin_not() {
+        std::env::set_var("ADMIN_USERNAME", "admin_username");
+        assert!(!is_admin("not_admin_username"));
     }
 }

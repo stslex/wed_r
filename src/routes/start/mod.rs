@@ -13,6 +13,7 @@ use crate::{
     config::BotState,
     handlers::state::{MenuAdminCommandState, MenuCommandState, MenuEmptyCommandState},
     repository::{model::StartRequestModel, StartRepository},
+    routes::get_payload,
     utils::KeyboardButtonUtil,
 };
 
@@ -35,19 +36,6 @@ pub async fn command_start(
     let payload = get_payload(&msg_binding).await;
     let msg_binding = msg.clone();
     process_start_user(bot, &msg_binding, payload, user, bot_state).await
-}
-
-async fn get_payload<'a>(msg: &'a Message) -> &'a str {
-    match msg.text() {
-        Some(text) => {
-            let payload = text.split_whitespace().collect::<Vec<&'a str>>();
-            if payload.len() < 2 {
-                return "";
-            }
-            return payload[1];
-        }
-        None => "",
-    }
 }
 
 async fn process_start_user<'a>(

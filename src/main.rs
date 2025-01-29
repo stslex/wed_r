@@ -1,5 +1,6 @@
-use config::BotState;
+use config::{BotState, CreateUserState};
 use handlers::handler_tree;
+use teloxide::dispatching::dialogue::InMemStorage;
 use teloxide::dispatching::Dispatcher;
 use teloxide::prelude::*;
 
@@ -20,7 +21,10 @@ async fn main() {
     let bot = Bot::from_env();
 
     Dispatcher::builder(bot.clone(), handler_tree())
-        .dependencies(dptree::deps![BotState::new()])
+        .dependencies(dptree::deps![
+            BotState::new(),
+            InMemStorage::<CreateUserState>::new()
+        ])
         .enable_ctrlc_handler()
         .build()
         .dispatch()
