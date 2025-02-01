@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::database::user::model::UserEntity;
@@ -15,7 +16,7 @@ pub struct CreateUserRequestModel<'a> {
     pub name: &'a str,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[allow(dead_code)]
 pub struct UserResponseModel {
     pub uuid: Uuid,

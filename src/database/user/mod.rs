@@ -1,4 +1,5 @@
 use model::{UserCreateEntity, UserEntity, UserUpdateEntity};
+use uuid::Uuid;
 
 use super::ErrorResponseDb;
 
@@ -15,4 +16,5 @@ pub trait UserDatabase {
     async fn update_user(self, user: UserUpdateEntity) -> Result<UserEntity, ErrorResponseDb>;
     async fn create_user(self, user: UserCreateEntity) -> Result<UserEntity, ErrorResponseDb>;
     async fn get_all_users<'a>(self) -> Result<Vec<UserEntity>, ErrorResponseDb>;
+    async fn remove_user<'a>(self, uuid: &'a Uuid) -> Result<(), ErrorResponseDb>;
 }

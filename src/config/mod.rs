@@ -3,6 +3,8 @@ use diesel::{
     PgConnection,
 };
 use serde::{Deserialize, Serialize};
+
+use crate::repository::admin::model::UserResponseModel;
 pub mod database;
 
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
@@ -29,11 +31,21 @@ impl BotState {
 }
 
 #[derive(Clone, Default, Serialize, Deserialize)]
-pub enum CreateUserState {
+pub enum AdminDialogue {
     #[default]
-    NotStarted,
+    None,
+    CreateUser(CreateUserState),
+    RemoveUser(RemoveUserState),
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub enum CreateUserState {
     WaitingForUsername,
-    WaitingForAccept {
-        firstname: String,
-    },
+    WaitingForAccept { firstname: String },
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub enum RemoveUserState {
+    WaitingForNumber { users: Vec<UserResponseModel> },
+    WaitingForAccept { user: UserResponseModel },
 }

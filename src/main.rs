@@ -1,4 +1,4 @@
-use config::{BotState, CreateUserState};
+use config::{AdminDialogue, BotState};
 use handlers::handler_tree;
 use teloxide::dispatching::dialogue::InMemStorage;
 use teloxide::dispatching::Dispatcher;
@@ -23,7 +23,7 @@ async fn main() {
     Dispatcher::builder(bot.clone(), handler_tree())
         .dependencies(dptree::deps![
             BotState::new(),
-            InMemStorage::<CreateUserState>::new()
+            InMemStorage::<AdminDialogue>::new()
         ])
         .enable_ctrlc_handler()
         .build()

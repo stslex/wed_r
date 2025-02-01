@@ -1,9 +1,9 @@
 use std::fs;
 
-use crate::config::BotState;
+use crate::config::{AdminDialogue, BotState, CreateUserState};
+use crate::repository::admin::is_admin;
 use crate::repository::admin::model::CreateUserRequestModel;
 use crate::repository::admin::AdminRepository;
-use crate::{config::CreateUserState, repository::admin::is_admin};
 use image::{ImageBuffer, Luma};
 use qrcodegen::QrCode;
 use teloxide::types::InputFile;
@@ -17,7 +17,7 @@ use uuid::Uuid;
 pub async fn command_create_user(
     bot: Bot,
     msg: Message,
-    dialogue: Dialogue<CreateUserState, InMemStorage<CreateUserState>>,
+    dialogue: Dialogue<AdminDialogue, InMemStorage<AdminDialogue>>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let is_admin = match msg.chat.username() {
         Some(username) => is_admin(username),
@@ -26,11 +26,14 @@ pub async fn command_create_user(
 
     match is_admin {
         true => {
-            let chat_id = msg.chat.id;
             let text = "Insert user name";
 
-            bot.send_message(chat_id, text).await?;
-            dialogue.update(CreateUserState::WaitingForUsername).await?;
+            bot.send_message(msg.chat.id, text).await?;
+            dialogue
+                .update(AdminDialogue::CreateUser(
+                    CreateUserState::WaitingForUsername,
+                ))
+                .await?;
         }
         false => {
             let chat_id = msg.chat.id;
@@ -45,16 +48,22 @@ pub async fn handle_create_user_state(
     bot: Bot,
     msg: Message,
     bot_state: BotState,
-    dialogue: Dialogue<CreateUserState, InMemStorage<CreateUserState>>,
+    dialogue: Dialogue<AdminDialogue, InMemStorage<AdminDialogue>>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let state = dialogue.get_or_default().await;
 
     match state {
         Ok(state) => match state {
-            CreateUserState::NotStarted => return Ok(()),
-            CreateUserState::WaitingForUsername => wait_username(bot, msg, dialogue).await?,
-            CreateUserState::WaitingForAccept { firstname } => {
-                wait_for_accept(bot, msg, bot_state, dialogue, firstname).await?
+            AdminDialogue::CreateUser(state) => match state {
+                CreateUserState::WaitingForUsername => wait_username(bot, msg, dialogue).await?,
+                CreateUserState::WaitingForAccept { firstname } => {
+                    wait_for_accept(bot, msg, bot_state, dialogue, firstname).await?
+                }
+            },
+            _ => {
+                bot.send_message(msg.chat.id, "something went wrong")
+                    .await?;
+                dialogue.exit().await?;
             }
         },
         Err(err) => {
@@ -62,7 +71,7 @@ pub async fn handle_create_user_state(
 
             bot.send_message(msg.chat.id, "something went wrong")
                 .await?;
-            dialogue.update(CreateUserState::NotStarted).await?;
+            dialogue.exit().await?;
         }
     }
 
@@ -73,7 +82,7 @@ async fn wait_for_accept(
     bot: Bot,
     msg: Message,
     bot_state: BotState,
-    dialogue: Dialogue<CreateUserState, InMemStorage<CreateUserState>>,
+    dialogue: Dialogue<AdminDialogue, InMemStorage<AdminDialogue>>,
     firstname: String,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     match msg.text() {
@@ -103,34 +112,33 @@ async fn wait_for_accept(
                     }
                 }
             }
-            dialogue.update(CreateUserState::NotStarted).await?;
         }
         None => {
-            bot.send_message(msg.chat.id, "Please enter new user name")
-                .await?;
-            dialogue.update(CreateUserState::WaitingForUsername).await?;
+            bot.send_message(msg.chat.id, "text is empty").await?;
         }
     }
+    dialogue.exit().await?;
     Ok(())
 }
 
 async fn wait_username(
     bot: Bot,
     msg: Message,
-    dialogue: Dialogue<CreateUserState, InMemStorage<CreateUserState>>,
+    dialogue: Dialogue<AdminDialogue, InMemStorage<AdminDialogue>>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     match msg.text() {
         Some(name) => {
             bot.send_message(msg.chat.id, "Do you accept?").await?;
             dialogue
-                .update(CreateUserState::WaitingForAccept {
-                    firstname: name.to_string(),
-                })
+                .update(AdminDialogue::CreateUser(
+                    CreateUserState::WaitingForAccept {
+                        firstname: name.to_string(),
+                    },
+                ))
                 .await?;
         }
         None => {
-            bot.send_message(msg.chat.id, "Please enter your username")
-                .await?;
+            bot.send_message(msg.chat.id, "username is empty").await?;
         }
     }
     Ok(())

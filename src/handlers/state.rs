@@ -43,8 +43,8 @@ pub enum MenuAdminCommandState {
     StartedUsers,
     #[command(description = "create user")]
     CreateUser,
-    #[command(description = "delete user")]
-    DeleteUser,
+    #[command(description = "remove user")]
+    RemoveUser,
 }
 
 #[derive(BotCommands, Clone)]
