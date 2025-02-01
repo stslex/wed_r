@@ -1,20 +1,19 @@
+use std::fs;
+
 use crate::config::BotState;
 use crate::repository::admin::model::CreateUserRequestModel;
 use crate::repository::admin::AdminRepository;
 use crate::{config::CreateUserState, repository::admin::is_admin};
+use image::{ImageBuffer, Luma};
+use qrcodegen::QrCode;
+use teloxide::types::InputFile;
 use teloxide::{prelude::Requester, types::Message, Bot};
 
 mod tests;
 
 use teloxide::{dispatching::dialogue::InMemStorage, prelude::*};
+use uuid::Uuid;
 
-// - route create user
-// - check if user is admin
-// - return callback for insert first name
-// - return callback for insert state / key (for group user)
-// - create user in db
-// - generate qr code
-// - return qr code with success message
 pub async fn command_create_user(
     bot: Bot,
     msg: Message,
@@ -83,7 +82,6 @@ async fn wait_for_accept(
                 bot.send_message(msg.chat.id, format!("User {} not created", firstname))
                     .await?;
             } else {
-                //save firstname
                 let user_create = CreateUserRequestModel {
                     username: "",
                     name: &firstname,
@@ -93,12 +91,15 @@ async fn wait_for_accept(
                         log::info!("User created: {:?}", user);
                         bot.send_message(msg.chat.id, format!("User {} created", user))
                             .await?;
-                        //generate qr code
-                        bot.send_message(msg.chat.id, format!("Here is {} QrCode", firstname))
-                            .await?;
+                        generate_qr_code(bot.clone(), user.uuid, msg.chat.id).await?;
                     }
                     Err(err) => {
                         log::error!("Error creating user: {:?}", err);
+                        bot.send_message(
+                            msg.chat.id,
+                            format!("Error creating user {}: {}", firstname, err),
+                        )
+                        .await?;
                     }
                 }
             }
@@ -132,5 +133,51 @@ async fn wait_username(
                 .await?;
         }
     }
+    Ok(())
+}
+
+async fn generate_qr_code(
+    bot: Bot,
+    user_uuid: Uuid,
+    chat_id: ChatId,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let bot_username = std::env::var("BOT_NAME").unwrap();
+    let deep_link = format!("https://t.me/{bot_username}?start={user_uuid}");
+
+    let qr = QrCode::encode_text(&deep_link, qrcodegen::QrCodeEcc::Medium).unwrap();
+    let qr_size = qr.size() as u32;
+
+    let scale = 10;
+    let padding = 4 * scale;
+
+    let img_size = (qr_size * scale) + 2 * padding;
+    let mut image = ImageBuffer::from_pixel(img_size, img_size, Luma([255u8]));
+
+    for y in 0u32..qr_size {
+        for x in 0u32..qr_size {
+            if qr.get_module(x as i32, y as i32) {
+                for dy in 0..scale {
+                    for dx in 0..scale {
+                        image.put_pixel(
+                            x * scale + padding + dx,
+                            y * scale + padding + dy,
+                            Luma([0u8]),
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    let file_path = &format!("qr_code_{user_uuid}.png");
+    image.save(file_path)?;
+
+    let qr_file = InputFile::file(file_path);
+    bot.send_photo(chat_id, qr_file)
+        .caption(format!("QR code created:\n{}", deep_link))
+        .await?;
+
+    fs::remove_file(file_path)?;
+
     Ok(())
 }

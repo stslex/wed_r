@@ -39,7 +39,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn create_user_error() {
+    async fn create_equals_user() {
         let entity_create = UserCreateEntity {
             username: "test_username".to_owned(),
             name: "test_name".to_owned(),
@@ -50,9 +50,10 @@ mod tests {
         let user_result = pool.create_user(entity_create.clone()).await;
         assert!(user_result.is_ok());
 
-        let user_result = pool.create_user(entity_create).await;
+        let user_result = pool.create_user(entity_create.clone()).await.ok().unwrap();
 
-        assert_eq!(user_result.err().unwrap(), ErrorResponseDb::Conflict);
+        assert_eq!(user_result.username, entity_create.username);
+        assert_eq!(user_result.name, entity_create.name);
     }
 
     #[tokio::test]
