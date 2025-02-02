@@ -28,42 +28,40 @@ pub async fn command_remove_user(
         }
     };
 
-    match is_admin(username) {
-        true => {
-            let users = match bot_state.get_all_users(username).await {
-                Ok(users) => users,
-                Err(e) => {
-                    log::error!("Cannot get all users: {}", e);
-                    return Ok(());
-                }
-            };
+    if is_admin(username) {
+        let users = match bot_state.get_all_users(username).await {
+            Ok(users) => users,
+            Err(e) => {
+                log::error!("Cannot get all users: {}", e);
+                return Ok(());
+            }
+        };
 
-            let mut text_msg = "Index | username | name \n".to_string();
+        let mut text_msg = "Index | username | name \n".to_string();
 
-            let text_users = users
-                .iter()
-                .enumerate()
-                .map(|(index, user)| format!("{} | @{} | {} |", index, user.username, user.name))
-                .collect::<Vec<String>>()
-                .join("\n");
+        let text_users = users
+            .iter()
+            .enumerate()
+            .map(|(index, user)| format!("{} | @{} | {} |", index, user.username, user.name))
+            .collect::<Vec<String>>()
+            .join("\n");
 
-            text_msg.push_str(&text_users);
-            text_msg.push_str("\n\nInsert index of user to remove");
+        text_msg.push_str(&text_users);
+        text_msg.push_str("\n\nInsert index of user to remove");
 
-            bot.send_message(msg.chat.id, text_msg).await?;
-            dialogue
-                .update(AdminDialogue::RemoveUser(
-                    RemoveUserState::WaitingForNumber { users },
-                ))
-                .await?;
-        }
-        false => {
-            let chat_id = msg.chat.id;
-            let text = "You are not admin";
-            bot.send_message(chat_id, text).await?;
-            dialogue.exit().await?;
-        }
+        bot.send_message(msg.chat.id, text_msg).await?;
+        dialogue
+            .update(AdminDialogue::RemoveUser(
+                RemoveUserState::WaitingForNumber { users },
+            ))
+            .await?;
+    } else {
+        let chat_id = msg.chat.id;
+        let text = "You are not admin";
+        bot.send_message(chat_id, text).await?;
+        dialogue.exit().await?;
     }
+
     Ok(())
 }
 
@@ -72,7 +70,7 @@ pub async fn handle_remove_user_state(
     msg: Message,
     bot_state: BotState,
     dialogue: Dialogue<AdminDialogue, InMemStorage<AdminDialogue>>,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+) -> Result<(), Box<dyn Error + Send + Sync>> {
     let state = dialogue.get_or_default().await;
 
     match state {
@@ -108,29 +106,31 @@ async fn wait_number(
     msg: Message,
     dialogue: Dialogue<AdminDialogue, InMemStorage<AdminDialogue>>,
     list_uuid: Vec<UserResponseModel>,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let index = match msg.text() {
-        Some(text) => match text.parse::<usize>() {
-            Ok(index) => index,
-            Err(_) => {
-                bot.send_message(msg.chat.id, "Invalid index").await?;
-                dialogue.exit().await?;
-                return Ok(());
-            }
-        },
-        None => {
-            bot.send_message(msg.chat.id, "Cannot get message").await?;
+) -> Result<(), Box<dyn Error + Send + Sync>> {
+    let msg_text = if let Some(text) = msg.text() {
+        text
+    } else {
+        bot.send_message(msg.chat.id, "Cannot get message").await?;
+        dialogue.exit().await?;
+        return Ok(());
+    };
+
+    let index = match msg_text.parse::<usize>() {
+        Ok(index) => index,
+        Err(err) => {
+            log::error!("Error parsing index: {:?}", err);
+            bot.send_message(msg.chat.id, "Invalid index").await?;
             dialogue.exit().await?;
             return Ok(());
         }
     };
-    let user = match list_uuid.get(index) {
-        Some(user) => user,
-        None => {
-            bot.send_message(msg.chat.id, "Index out of bounds").await?;
-            dialogue.exit().await?;
-            return Ok(());
-        }
+
+    let user = if let Some(user) = list_uuid.get(index) {
+        user
+    } else {
+        bot.send_message(msg.chat.id, "Index out of bounds").await?;
+        dialogue.exit().await?;
+        return Ok(());
     }
     .to_owned();
 
@@ -154,31 +154,29 @@ async fn wait_for_accept(
     bot_state: BotState,
     dialogue: Dialogue<AdminDialogue, InMemStorage<AdminDialogue>>,
     user: UserResponseModel,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    match msg.text() {
-        Some(accept_text) => {
-            if accept_text.to_lowercase() == "no" || accept_text.to_lowercase() == "n" {
-                bot.send_message(msg.chat.id, format!("User {} not removed", user.name))
-                    .await?;
-            } else {
-                match bot_state.remove_user(&user.uuid).await {
-                    Ok(()) => {
-                        bot.send_message(msg.chat.id, format!("User {} removed", user.name))
-                            .await?;
-                    }
-                    Err(err) => {
-                        log::error!("Error creating user {} : {:?}", user.name, err);
-                        bot.send_message(msg.chat.id, format!("Error removing user {}", err))
-                            .await?;
-                    }
+) -> Result<(), Box<dyn Error + Send + Sync>> {
+    if let Some(accept_text) = msg.text() {
+        if accept_text.to_lowercase() == "no" || accept_text.to_lowercase() == "n" {
+            bot.send_message(msg.chat.id, format!("User {} not removed", user.name))
+                .await?;
+        } else {
+            match bot_state.remove_user(&user.uuid).await {
+                Ok(()) => {
+                    bot.send_message(msg.chat.id, format!("User {} removed", user.name))
+                        .await?;
+                }
+                Err(err) => {
+                    log::error!("Error creating user {} : {:?}", user.name, err);
+                    bot.send_message(msg.chat.id, format!("Error removing user {}", err))
+                        .await?;
                 }
             }
         }
-        None => {
-            bot.send_message(msg.chat.id, "Please reinit remove user")
-                .await?;
-        }
+    } else {
+        bot.send_message(msg.chat.id, "Please reinit remove user")
+            .await?;
     }
+
     dialogue.exit().await?;
     Ok(())
 }
