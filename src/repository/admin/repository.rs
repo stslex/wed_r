@@ -1,3 +1,5 @@
+use uuid::Uuid;
+
 use crate::{
     config::{database::DataPool, BotState},
     database::{
@@ -67,5 +69,10 @@ impl AdminRepository for BotState {
         .await
         .map(|user| user.into())
         .map_err(|err| err.into())
+    }
+
+    async fn remove_user<'a>(&self, uuid: &'a Uuid) -> Result<(), ErrorResponseData> {
+        let mut pool = self.clone().safe_get()?;
+        pool.remove_user(uuid).await.map_err(|err| err.into())
     }
 }

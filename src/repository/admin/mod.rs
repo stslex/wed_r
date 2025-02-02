@@ -1,4 +1,5 @@
 use model::{AdminRequestModel, CreateUserRequestModel, UserResponseModel};
+use uuid::Uuid;
 
 use crate::routes::model::ErrorResponseData;
 
@@ -22,6 +23,7 @@ pub trait AdminRepository {
         &self,
         request: &AdminRequestModel<'a>,
     ) -> Result<UserResponseModel, ErrorResponseData>;
+    async fn remove_user<'a>(&self, uuid: &'a Uuid) -> Result<(), ErrorResponseData>;
 }
 
 impl<'a> Into<AdminRequestModel<'a>> for &StartRequestModel<'a> {

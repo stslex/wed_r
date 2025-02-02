@@ -79,4 +79,13 @@ impl UserDatabase for &mut DbCon {
                 }
             })
     }
+    async fn remove_user<'a>(self, uuid: &'a Uuid) -> Result<(), ErrorResponseDb> {
+        diesel::delete(users::table.filter(users::uuid.eq(uuid)))
+            .execute(self)
+            .map_err(|err| {
+                error!("Failed to remove user: {}", err);
+                ErrorResponseDb::InternalServerError
+            })?;
+        Ok(())
+    }
 }
