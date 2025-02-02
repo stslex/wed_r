@@ -6,12 +6,9 @@ use teloxide::prelude::{Message, Requester};
 use teloxide::types::{MediaKind, MessageKind};
 use teloxide::Bot;
 
-use crate::BotState;
-
 pub async fn handle_image_video_message(
     bot: Bot,
     message: Message,
-    bot_state: BotState,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     if let MessageKind::Common(ref common_msg) = message.kind {
         match &common_msg.media_kind {
@@ -73,16 +70,7 @@ async fn save_file_locally(
     filename: &str,
     data: &[u8],
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
-    let filename = format!("./wedding_files/{}", filename);
-    let mut file = File::create(filename)?;
-    file.write(data)?;
-    Ok(())
-}
-
-async fn save_file_google_disk(
-    filename: &str,
-    data: &[u8],
-) -> Result<(), Box<dyn Error + Send + Sync>> {
+    let filename = format!("./wed_files/{}", filename);
     let mut file = File::create(filename)?;
     file.write(data)?;
     Ok(())

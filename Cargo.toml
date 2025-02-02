@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-reqwest = "0.12.12"
+reqwest = { version = "0.12.12", features = ["json"] }
 # tg bot
 teloxide = { version = "0.13", features = ["macros"] }
 teloxide_tests = { version = "0.2" }
