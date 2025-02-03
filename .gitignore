@@ -7,3 +7,4 @@ docker-compose.yml
 /rustc-ice-*
 /*.pem
 /Cargo.lock
+/wed_files
