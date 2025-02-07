@@ -17,11 +17,7 @@ impl UserRepository for BotState {
         let mut pool = self.clone().safe_get()?;
         pool.get_user(uuid)
             .await
-            .map(|user| UserResponseDataModel {
-                uuid: user.uuid,
-                username: user.username,
-                name: user.name,
-            })
+            .map(|user| user.into())
             .map_err(|err| err.into())
     }
 
@@ -37,13 +33,11 @@ impl UserRepository for BotState {
             uuid: user.uuid,
             username: user.username.to_owned(),
             name: user.name.to_owned(),
+            is_active: user.is_active,
+            is_accepted: user.is_accepted,
         })
         .await
-        .map(|user| UserResponseDataModel {
-            uuid: user.uuid,
-            username: user.username,
-            name: user.name,
-        })
+        .map(|user| user.into())
         .map_err(|err| {
             println!("error {:?}", err);
             err.into()

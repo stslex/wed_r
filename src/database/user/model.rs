@@ -9,6 +9,8 @@ pub struct UserEntity {
     pub uuid: Uuid,
     pub username: String,
     pub name: String,
+    pub is_active: bool,
+    pub is_accepted: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
@@ -16,6 +18,8 @@ pub struct UserEntity {
 pub struct UserCreateEntity {
     pub username: String,
     pub name: String,
+    pub is_active: bool,
+    pub is_accepted: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, AsChangeset)]
@@ -24,4 +28,6 @@ pub struct UserUpdateEntity {
     pub uuid: Uuid,
     pub username: String,
     pub name: String,
+    pub is_active: bool,
+    pub is_accepted: bool,
 }

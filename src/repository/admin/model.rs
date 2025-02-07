@@ -22,6 +22,8 @@ pub struct UserResponseModel {
     pub uuid: Uuid,
     pub username: String,
     pub name: String,
+    pub is_active: bool,
+    pub is_accepted: bool,
 }
 
 impl<'a> Into<CreateUserRequestModel<'a>> for &AdminRequestModel<'a> {
@@ -39,6 +41,8 @@ impl Into<UserResponseModel> for UserEntity {
             uuid: self.uuid,
             username: self.username,
             name: self.name,
+            is_active: self.is_active,
+            is_accepted: self.is_accepted,
         }
     }
 }
@@ -47,10 +51,12 @@ impl Display for UserResponseModel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "User: {} - {} - {}",
+            "User: {} - {} - {} - {} - {}",
             self.username,
             self.name,
-            self.uuid.to_string()
+            self.uuid.to_string(),
+            self.is_active,
+            self.is_accepted
         )
     }
 }

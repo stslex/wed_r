@@ -45,6 +45,8 @@ impl AdminRepository for BotState {
                     .create_user(UserCreateEntity {
                         username: request.username.to_owned(),
                         name: request.name.to_owned(),
+                        is_active: true,
+                        is_accepted: false,
                     })
                     .await
                     .map(|user| user.into())
@@ -65,6 +67,8 @@ impl AdminRepository for BotState {
         pool.create_user(UserCreateEntity {
             username: request.username.to_owned(),
             name: request.name.to_owned(),
+            is_active: false,
+            is_accepted: false,
         })
         .await
         .map(|user| user.into())

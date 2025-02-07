@@ -21,6 +21,8 @@ mod tests {
             uuid: Uuid::new_v4(),
             username: "test_username",
             name: "test_name",
+            is_active: false,
+            is_accepted: false,
         };
 
         let user_response = state.start_user(&user_create_model).await.err().unwrap();
@@ -43,6 +45,8 @@ mod tests {
             uuid: user_created.uuid,
             username: &user_created.username,
             name: &user_created.name,
+            is_active: false,
+            is_accepted: false,
         };
 
         let user_get_response = state.start_user(&user_start_model.clone()).await;
