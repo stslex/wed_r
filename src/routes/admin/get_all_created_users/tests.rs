@@ -52,12 +52,17 @@ mod tests {
         // Sends the message as if it was from a user
         bot.dispatch().await;
 
+        "Index | username | name | is active | is accepted |\nAll users:\n0 | @test_username_1 | test first name_1 | false | false |\n1 | @test_username_2 | test first name_2 | false | false |";
         let expected_message = format!(
-            "All users:\n{} - {}\n{} - {}\n",
+            "Index | username | name | is active | is accepted |\nAll users:\n0 | @{} | {} | {} | {} |\n1 | @{} | {} | {} | {} |",
             expected_user_1.username,
             expected_user_1.name,
+            expected_user_1.is_active,
+            expected_user_1.is_accepted,
             expected_user_2.username,
-            expected_user_2.name
+            expected_user_2.name,
+            expected_user_2.is_active,
+            expected_user_2.is_accepted
         );
 
         let responses = bot.get_responses();

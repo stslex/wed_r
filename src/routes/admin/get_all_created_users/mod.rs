@@ -28,11 +28,24 @@ pub async fn command_get_all_created_users(
 
     match bot_state.get_all_users(&username).await {
         Ok(users) => {
-            let mut message = String::from("All users:\n");
-            for user in users {
-                message.push_str(&format!("{} - {}\n", user.username, user.name));
-            }
-            bot.send_message(msg.chat.id, message).await?;
+            let mut text_msg = "Index | username | name | is active | is accepted |\n".to_string();
+
+            let text_users = users
+                .iter()
+                .enumerate()
+                .map(|(index, user)| {
+                    format!(
+                        "{} | @{} | {} | {} | {} |",
+                        index, user.username, user.name, user.is_active, user.is_accepted
+                    )
+                })
+                .collect::<Vec<String>>()
+                .join("\n");
+
+            text_msg.push_str("All users:\n");
+            text_msg.push_str(&text_users);
+
+            bot.send_message(msg.chat.id, text_msg).await?;
         }
         Err(e) => {
             log::error!("Cannot get all users: {}", e);

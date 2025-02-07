@@ -8,3 +8,4 @@ docker-compose.yml
 /*.pem
 /Cargo.lock
 /wed_files
+.DS_Store

@@ -27,6 +27,8 @@ mod tests {
         let entity_create = UserCreateEntity {
             username: "test_username".to_owned(),
             name: "test_name".to_owned(),
+            is_active: false,
+            is_accepted: false,
         };
 
         let mut pool = create_test_db_pool().get().unwrap();
@@ -43,6 +45,8 @@ mod tests {
         let entity_create = UserCreateEntity {
             username: "test_username".to_owned(),
             name: "test_name".to_owned(),
+            is_active: false,
+            is_accepted: false,
         };
 
         let mut pool = create_test_db_pool().get().unwrap();
@@ -61,6 +65,8 @@ mod tests {
         let entity_create = UserCreateEntity {
             username: "test_username".to_owned(),
             name: "test_name".to_owned(),
+            is_active: false,
+            is_accepted: false,
         };
 
         let mut pool = create_test_db_pool().get().unwrap();
@@ -80,6 +86,8 @@ mod tests {
         let entity_create = UserCreateEntity {
             username: "test_username".to_owned(),
             name: "test_name".to_owned(),
+            is_active: false,
+            is_accepted: false,
         };
 
         let mut pool = create_test_db_pool().get().unwrap();
@@ -100,6 +108,8 @@ mod tests {
         let entity_create = UserCreateEntity {
             username: "test_username".to_owned(),
             name: "test_name".to_owned(),
+            is_active: false,
+            is_accepted: false,
         };
 
         let mut pool = create_test_db_pool().get().unwrap();
@@ -111,6 +121,8 @@ mod tests {
             username: "new_username".to_owned(),
             name: "new_name".to_owned(),
             uuid: user_result.unwrap().uuid,
+            is_active: false,
+            is_accepted: false,
         };
         let update_result = pool.update_user(update_user.clone()).await.unwrap();
 
@@ -127,6 +139,8 @@ mod tests {
             username: "new_username".to_owned(),
             name: "new_name".to_owned(),
             uuid: Uuid::new_v4(),
+            is_active: false,
+            is_accepted: false,
         };
         let update_result = pool.update_user(update_user.clone()).await.err().unwrap();
 

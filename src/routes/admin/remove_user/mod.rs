@@ -37,12 +37,17 @@ pub async fn command_remove_user(
             }
         };
 
-        let mut text_msg = "Index | username | name \n".to_string();
+        let mut text_msg = "Index | username | name | is active | is accepted |\n".to_string();
 
         let text_users = users
             .iter()
             .enumerate()
-            .map(|(index, user)| format!("{} | @{} | {} |", index, user.username, user.name))
+            .map(|(index, user)| {
+                format!(
+                    "{} | @{} | {} | {} | {} |",
+                    index, user.username, user.name, user.is_active, user.is_accepted
+                )
+            })
             .collect::<Vec<String>>()
             .join("\n");
 
