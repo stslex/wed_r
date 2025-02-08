@@ -30,12 +30,14 @@ mod tests {
         let admin_create_model = AdminRequestModel {
             username: "admin_username",
             name: "admin_test_name",
+            chat_id: &123,
         };
 
         let admin_created = state.start_admin(&admin_create_model).await.unwrap();
 
         assert_eq!(admin_created.name, admin_create_model.name);
         assert_eq!(admin_created.username, admin_create_model.username);
+        assert_eq!(admin_created.chat_id, Some(*admin_create_model.chat_id));
         assert!(!admin_created.uuid.to_string().is_empty());
     }
 

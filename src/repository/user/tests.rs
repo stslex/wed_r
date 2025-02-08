@@ -21,8 +21,8 @@ mod tests {
             uuid: Uuid::new_v4(),
             username: "test_username",
             name: "test_name",
-            is_active: false,
             is_accepted: false,
+            chat_id: &123,
         };
 
         let user_response = state.start_user(&user_create_model).await.err().unwrap();
@@ -45,16 +45,17 @@ mod tests {
             uuid: user_created.uuid,
             username: &user_created.username,
             name: &user_created.name,
-            is_active: false,
             is_accepted: false,
+            chat_id: &123,
         };
 
         let user_get_response = state.start_user(&user_start_model.clone()).await;
 
         let user_get_response = user_get_response.unwrap();
-        assert_eq!(user_get_response.name, user_create_model.name);
-        assert_eq!(user_get_response.username, user_create_model.username);
+        assert_eq!(user_get_response.name, user_start_model.name);
+        assert_eq!(user_get_response.username, user_start_model.username);
         assert!(!user_get_response.uuid.to_string().is_empty());
-        assert_eq!(user_get_response.uuid, user_created.uuid);
+        assert_eq!(user_get_response.uuid, user_start_model.uuid);
+        assert_eq!(user_get_response.chat_id, Some(*user_start_model.chat_id));
     }
 }

@@ -45,7 +45,11 @@ pub async fn command_remove_user(
             .map(|(index, user)| {
                 format!(
                     "{} | @{} | {} | {} | {} |",
-                    index, user.username, user.name, user.is_active, user.is_accepted
+                    index,
+                    user.username,
+                    user.name,
+                    user.chat_id.is_some(),
+                    user.is_accepted
                 )
             })
             .collect::<Vec<String>>()

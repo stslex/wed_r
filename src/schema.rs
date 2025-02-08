@@ -1,9 +1,10 @@
 diesel::table! {
     users (uuid) {
         uuid -> Uuid,
+        #[max_length = 128]
         username -> Varchar,
-        name -> Varchar,
-        is_active -> Bool,
-        is_accepted -> Bool
+        name -> Text,
+        chat_id -> Nullable<Int8>,
+        is_accepted -> Bool,
     }
 }

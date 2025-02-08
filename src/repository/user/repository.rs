@@ -33,8 +33,8 @@ impl UserRepository for BotState {
             uuid: user.uuid,
             username: user.username.to_owned(),
             name: user.name.to_owned(),
-            is_active: user.is_active,
             is_accepted: user.is_accepted,
+            chat_id: Some(*user.chat_id),
         })
         .await
         .map(|user| user.into())

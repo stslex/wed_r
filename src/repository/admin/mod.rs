@@ -31,6 +31,7 @@ impl<'a> Into<AdminRequestModel<'a>> for &StartRequestModel<'a> {
         AdminRequestModel {
             username: self.username,
             name: self.name,
+            chat_id: self.chat_id,
         }
     }
 }

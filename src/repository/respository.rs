@@ -27,8 +27,8 @@ impl StartRepository for BotState {
                         uuid: user.uuid,
                         username: &request.username,
                         name: &user.name,
-                        is_active: true,
                         is_accepted: user.is_accepted,
+                        chat_id: request.chat_id,
                     })
                     .await
                     .map(|user| StartResponseModel {

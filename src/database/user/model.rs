@@ -9,7 +9,7 @@ pub struct UserEntity {
     pub uuid: Uuid,
     pub username: String,
     pub name: String,
-    pub is_active: bool,
+    pub chat_id: Option<i64>,
     pub is_accepted: bool,
 }
 
@@ -18,7 +18,7 @@ pub struct UserEntity {
 pub struct UserCreateEntity {
     pub username: String,
     pub name: String,
-    pub is_active: bool,
+    pub chat_id: Option<i64>,
     pub is_accepted: bool,
 }
 
@@ -28,6 +28,6 @@ pub struct UserUpdateEntity {
     pub uuid: Uuid,
     pub username: String,
     pub name: String,
-    pub is_active: bool,
+    pub chat_id: Option<i64>,
     pub is_accepted: bool,
 }
