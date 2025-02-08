@@ -36,7 +36,11 @@ pub async fn command_get_all_created_users(
                 .map(|(index, user)| {
                     format!(
                         "{} | @{} | {} | {} | {} |",
-                        index, user.username, user.name, user.is_active, user.is_accepted
+                        index,
+                        user.username,
+                        user.name,
+                        user.chat_id.is_some(),
+                        user.is_accepted
                     )
                 })
                 .collect::<Vec<String>>()

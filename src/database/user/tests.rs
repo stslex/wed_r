@@ -27,8 +27,8 @@ mod tests {
         let entity_create = UserCreateEntity {
             username: "test_username".to_owned(),
             name: "test_name".to_owned(),
-            is_active: false,
             is_accepted: false,
+            chat_id: None,
         };
 
         let mut pool = create_test_db_pool().get().unwrap();
@@ -38,6 +38,7 @@ mod tests {
         let user = user_result.unwrap();
         assert_eq!(user.username, entity_create.username);
         assert_eq!(user.name, entity_create.name);
+        assert_eq!(user.chat_id, entity_create.chat_id);
     }
 
     #[tokio::test]
@@ -45,8 +46,8 @@ mod tests {
         let entity_create = UserCreateEntity {
             username: "test_username".to_owned(),
             name: "test_name".to_owned(),
-            is_active: false,
             is_accepted: false,
+            chat_id: None,
         };
 
         let mut pool = create_test_db_pool().get().unwrap();
@@ -58,6 +59,7 @@ mod tests {
 
         assert_eq!(user_result.username, entity_create.username);
         assert_eq!(user_result.name, entity_create.name);
+        assert_eq!(user_result.chat_id, entity_create.chat_id);
     }
 
     #[tokio::test]
@@ -65,8 +67,8 @@ mod tests {
         let entity_create = UserCreateEntity {
             username: "test_username".to_owned(),
             name: "test_name".to_owned(),
-            is_active: false,
             is_accepted: false,
+            chat_id: None,
         };
 
         let mut pool = create_test_db_pool().get().unwrap();
@@ -79,6 +81,7 @@ mod tests {
 
         assert_eq!(user.username, entity_create.username);
         assert_eq!(user.name, entity_create.name);
+        assert_eq!(user.chat_id, entity_create.chat_id);
     }
 
     #[tokio::test]
@@ -86,8 +89,8 @@ mod tests {
         let entity_create = UserCreateEntity {
             username: "test_username".to_owned(),
             name: "test_name".to_owned(),
-            is_active: false,
             is_accepted: false,
+            chat_id: None,
         };
 
         let mut pool = create_test_db_pool().get().unwrap();
@@ -101,6 +104,7 @@ mod tests {
 
         assert_eq!(user.username, entity_create.username);
         assert_eq!(user.name, entity_create.name);
+        assert_eq!(user.chat_id, entity_create.chat_id);
     }
 
     #[tokio::test]
@@ -108,8 +112,8 @@ mod tests {
         let entity_create = UserCreateEntity {
             username: "test_username".to_owned(),
             name: "test_name".to_owned(),
-            is_active: false,
             is_accepted: false,
+            chat_id: None,
         };
 
         let mut pool = create_test_db_pool().get().unwrap();
@@ -121,14 +125,15 @@ mod tests {
             username: "new_username".to_owned(),
             name: "new_name".to_owned(),
             uuid: user_result.unwrap().uuid,
-            is_active: false,
             is_accepted: false,
+            chat_id: Some(123),
         };
         let update_result = pool.update_user(update_user.clone()).await.unwrap();
 
         assert_eq!(update_user.username, update_result.username);
         assert_eq!(update_user.name, update_result.name);
         assert_eq!(update_user.uuid, update_result.uuid);
+        assert_eq!(update_user.chat_id, update_result.chat_id);
     }
 
     #[tokio::test]
@@ -139,8 +144,8 @@ mod tests {
             username: "new_username".to_owned(),
             name: "new_name".to_owned(),
             uuid: Uuid::new_v4(),
-            is_active: false,
             is_accepted: false,
+            chat_id: Some(123),
         };
         let update_result = pool.update_user(update_user.clone()).await.err().unwrap();
 

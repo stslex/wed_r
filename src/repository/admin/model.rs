@@ -8,6 +8,7 @@ use crate::database::user::model::UserEntity;
 pub struct AdminRequestModel<'a> {
     pub username: &'a str,
     pub name: &'a str,
+    pub chat_id: &'a i64,
 }
 
 #[derive(Debug)]
@@ -22,8 +23,8 @@ pub struct UserResponseModel {
     pub uuid: Uuid,
     pub username: String,
     pub name: String,
-    pub is_active: bool,
     pub is_accepted: bool,
+    pub chat_id: Option<i64>,
 }
 
 impl<'a> Into<CreateUserRequestModel<'a>> for &AdminRequestModel<'a> {
@@ -41,22 +42,24 @@ impl Into<UserResponseModel> for UserEntity {
             uuid: self.uuid,
             username: self.username,
             name: self.name,
-            is_active: self.is_active,
             is_accepted: self.is_accepted,
+            chat_id: self.chat_id,
         }
     }
 }
 
 impl Display for UserResponseModel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let open_chat_id = if let Some(id) = self.chat_id { id } else { -1 };
+
         write!(
             f,
             "User: {} - {} - {} - {} - {}",
             self.username,
             self.name,
             self.uuid.to_string(),
-            self.is_active,
-            self.is_accepted
+            self.is_accepted,
+            open_chat_id
         )
     }
 }

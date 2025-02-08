@@ -57,11 +57,11 @@ mod tests {
             "Index | username | name | is active | is accepted |\nAll users:\n0 | @{} | {} | {} | {} |\n1 | @{} | {} | {} | {} |",
             expected_user_1.username,
             expected_user_1.name,
-            expected_user_1.is_active,
+            expected_user_1.chat_id.is_some(),
             expected_user_1.is_accepted,
             expected_user_2.username,
             expected_user_2.name,
-            expected_user_2.is_active,
+            expected_user_2.chat_id.is_some(),
             expected_user_2.is_accepted
         );
 

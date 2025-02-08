@@ -2,6 +2,7 @@ mod tests;
 
 use log::error;
 use teloxide::{
+    dispatching::dialogue::GetChatId,
     payloads::SendMessageSetters,
     prelude::Requester,
     types::{KeyboardMarkup, Message, User},
@@ -55,10 +56,17 @@ async fn process_start_user<'a>(
         return Ok(());
     }
 
+    let chat_id = if let Some(id) = msg.chat_id() {
+        id
+    } else {
+        return Ok(());
+    };
+
     let request_model = StartRequestModel {
         username: &username,
         name: &name,
         uuid: payload,
+        chat_id: &chat_id.0,
     };
 
     let result = match bot_state.start(&request_model).await {
