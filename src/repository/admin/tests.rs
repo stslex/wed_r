@@ -44,13 +44,28 @@ mod tests {
     #[tokio::test]
     async fn is_admin_success() {
         let expected_username = "admin_username";
-        std::env::set_var("ADMIN_USERNAME", expected_username);
+        std::env::set_var("ADMIN_USERNAMES", expected_username);
         assert!(is_admin(expected_username));
     }
 
     #[tokio::test]
     async fn is_admin_not() {
-        std::env::set_var("ADMIN_USERNAME", "admin_username");
+        std::env::set_var("ADMIN_USERNAMES", "admin_username");
+        assert!(!is_admin("not_admin_username"));
+    }
+
+    #[tokio::test]
+    async fn is_admin_multiple() {
+        let expected_usernames = "admin_username, another_admin";
+        std::env::set_var("ADMIN_USERNAMES", expected_usernames);
+        assert!(is_admin("admin_username"));
+        assert!(is_admin("another_admin"));
+    }
+
+    #[tokio::test]
+    async fn is_admin_multiple_not() {
+        let expected_usernames = "admin_username, another_admin";
+        std::env::set_var("ADMIN_USERNAMES", expected_usernames);
         assert!(!is_admin("not_admin_username"));
     }
 }

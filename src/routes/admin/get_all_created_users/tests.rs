@@ -15,7 +15,7 @@ mod tests {
 
     #[tokio::test]
     async fn admin_route_get_all_created_success() {
-        std::env::set_var("ADMIN_USERNAME", "test_username");
+        std::env::set_var("ADMIN_USERNAMES", "test_username");
 
         let name = "test first name";
         let user = User {

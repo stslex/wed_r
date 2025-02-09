@@ -37,10 +37,12 @@ impl<'a> Into<AdminRequestModel<'a>> for &StartRequestModel<'a> {
 }
 
 pub fn is_admin<'a>(username: &'a str) -> bool {
-    match std::env::var("ADMIN_USERNAME") {
-        Ok(env_username) => username == env_username,
+    match std::env::var("ADMIN_USERNAMES") {
+        Ok(env_usernames) => env_usernames
+            .split(',')
+            .any(|admin_username| admin_username.trim() == username),
         Err(e) => {
-            log::error!("Cannot get the ADMIN_USERNAME env variable: {}", e);
+            log::error!("Cannot get the ADMIN_USERNAMES env variable: {}", e);
             false
         }
     }
