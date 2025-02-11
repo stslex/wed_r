@@ -35,7 +35,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [build, tests]
-    name: Deploy to test Docker Hub
+    name: Deploy to prod Docker Hub
 
     steps:
       - uses: actions/checkout@v3
@@ -53,6 +53,6 @@ jobs:
         uses: docker/build-push-action@v4.1.1
         with:
           push: true
-          tags: stslex/wed_r:test
+          tags: stslex/wed_r:prod
           platforms: linux/amd64
           context: .
